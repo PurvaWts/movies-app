@@ -1,0 +1,50 @@
+version: '3.8'  # Specify Docker Compose version
+
+services:
+  # NestJS Application
+  app:
+    container_name: nest-app
+    image: node:18-alpine  # Use the appropriate Node.js version
+    working_dir: /usr/src/app
+    volumes:
+      - ./:/usr/src/app  # Mount your project directory into the container
+      - /usr/src/app/node_modules  # Ensure node_modules are managed by Docker
+    ports:
+      - '3000:3000'  # Map container port to host
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=mysql://root:root@db:3306/event_manager_db  # Prisma/MySQL connection string
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=development  # Adjust according to your environment
+    command: sh -c "npm install && npm run start:dev"  # Install dependencies and run NestJS
+
+  # MySQL Database
+  db:
+    image: mysql:8
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: event_manager_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - '3306:3306'  # MySQL port
+    volumes:
+      - mysql_data:/var/lib/mysql  # Persist MySQL data
+
+  # Redis Cache
+  redis:
+    image: redis:alpine
+    container_name: redis-cache
+    ports:
+      - '6379:6379'  # Redis default port
+    volumes:
+      - redis_data:/data  # Persist Redis data
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
