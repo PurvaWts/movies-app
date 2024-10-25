@@ -10,8 +10,8 @@ import { ConfigService } from '@nestjs/config';
         try {
           return {
             uri: configService.get<string>('DBURI'),
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
+            // useNewUrlParser: true,
+            // useUnifiedTopology: true,
           };
         } catch (error) {
           console.log('-----------------', error);
